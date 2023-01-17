@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using Soma.Domain.Modules.AppRegistry;
-using Soma.Domain.Modules.AppRegistry.GetFile;
+using Soma.Domain.AppRegistry;
+using Soma.Domain.Exceptions;
 
 namespace Soma.Application.Handlers.AppRegistry;
 
@@ -8,7 +8,7 @@ public sealed record GetFileHandler(IAppRegistryRepository Repository) : IReques
 {
     public async Task<GetFileResponse> Handle(GetFileRequest request, CancellationToken cancellationToken)
     {
-        byte[] file = await Repository.GetFile(request.Id);
+        IAppVersionFile file = await Repository.GetFile(request.Id) ?? throw new NotFoundException($"App version file not found (id = {request.Id})");
         return new GetFileResponse(file);
     }
 }

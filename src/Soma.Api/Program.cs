@@ -2,8 +2,10 @@ using System.Reflection;
 using MediatR;
 using Soma.Application.Handlers.AppRegistry;
 using Soma.Data;
+using Soma.Data.AppChannel;
 using Soma.Data.AppRegistry;
-using Soma.Domain.Modules.AppRegistry;
+using Soma.Domain.AppChannel;
+using Soma.Domain.AppRegistry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,8 @@ builder.Services.AddSwaggerGen();
 // DB
 builder.Services
     .AddSingleton<DapperContext>()
-    .AddScoped<IAppRegistryRepository, AppRegistryRepository>();
+    .AddScoped<IAppRegistryRepository, AppRegistryRepository>()
+    .AddScoped<IAppChannelRepository, AppChannelRepository>();
 
 builder.Services.AddMediatR(typeof(GetHandler));
 
@@ -30,7 +33,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

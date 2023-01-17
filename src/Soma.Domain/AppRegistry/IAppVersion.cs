@@ -1,4 +1,4 @@
-﻿namespace Soma.Domain.Modules.AppRegistry;
+﻿namespace Soma.Domain.AppRegistry;
 
 public interface IAppVersion
 {
@@ -7,4 +7,8 @@ public interface IAppVersion
     string Version { get; }
     
     string Name { get; }
+    
+    string FileName { get; }
+    
+    long ChannelId { get; }
 }

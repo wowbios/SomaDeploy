@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using Soma.Domain.Modules.AppRegistry;
-using Soma.Domain.Modules.AppRegistry.Get;
+using Soma.Domain.AppRegistry;
+using Soma.Domain.Exceptions;
 
 namespace Soma.Application.Handlers.AppRegistry;
 
@@ -9,7 +9,7 @@ public sealed record GetHandler(IAppRegistryRepository Repository)
 {
     public async Task<GetResponse> Handle(GetRequest request, CancellationToken cancellationToken)
     {
-        IAppVersion result = await Repository.Get(request.Id);
-        return new GetResponse(result.Name, result.Version);
+        IAppVersion result = await Repository.Get(request.Id) ?? throw new NotFoundException($"AppVersion (id = {request.Id}) not found");
+        return new GetResponse(result);
     }
 }

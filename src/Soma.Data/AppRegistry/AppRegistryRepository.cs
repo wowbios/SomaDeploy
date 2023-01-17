@@ -1,48 +1,33 @@
 ﻿using Dapper;
-using Soma.Domain.Modules.AppRegistry;
+using Soma.Domain.AppRegistry;
 
 namespace Soma.Data.AppRegistry;
 
-public sealed class AppRegistryRepository : IAppRegistryRepository
+public sealed record AppRegistryRepository(DapperContext Db) : IAppRegistryRepository
 {
-    private readonly DapperContext _context;
-
-    public AppRegistryRepository(DapperContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
-    
-    public async Task<IAppVersion> Add(string name, string version, byte[] file)
+    public async Task<IAppVersion> Add(long channelId, string name, string version, string fileName, byte[] content)
     {
         const string sql = @"
-INSERT INTO AppRegistry (NAME, VERSION, [FILE])
-VALUES (@name, @version, @file)
+INSERT INTO AppRegistry (NAME, VERSION, [FILE], FILE_NAME, CHANNEL_ID)
+VALUES (@name, @version, @content, @fileName, @channelId)
 
 SELECT * FROM AppRegistry WITH (NOLOCK)
 WHERE ID = SCOPE_IDENTITY()";
 
-        using var _ = _context.Connect();
-
-        return await _.QuerySingleAsync<AppVersion>(
+        return (await Db.Get<AppVersion>(
             sql,
-            new { name, version, file });
+            new { name, version, content, fileName, channelId }))!;
     }
 
-    public async Task<IAppVersion> Get(long id)
+    public async Task<IAppVersion?> Get(long id)
     {
-        const string sql = @"
-SELECT * FROM AppRegistry WITH (NOLOCK)
-WHERE ID = @id";
-
-        using var _ = _context.Connect();
-
-        return await _.QuerySingleAsync<AppVersion>(sql, new { id });
+        const string sql = @"SELECT * FROM AppRegistry WITH (NOLOCK) WHERE ID = @id";
+        return await Db.Get<AppVersion>(sql, new { id });
     }
     
-    public async Task<byte[]> GetFile(long id)
+    public async Task<IAppVersionFile?> GetFile(long id)
     {
-        const string sql = @"SELECT [FILE] FROM AppRegistry WITH (NOLOCK) WHERE ID = @id";
-        using var _ = _context.Connect();
-        return await _.QuerySingleAsync<byte[]>(sql, new { id });
+        const string sql = @"SELECT ID, [FILE], FILE_NAME FROM AppRegistry WITH (NOLOCK) WHERE ID = @id";
+        return await Db.Get<AppVersionFile>(sql, new { id });
     }
 }
