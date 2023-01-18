@@ -1,11 +1,10 @@
 using System.Reflection;
 using MediatR;
-using Soma.Application.Handlers.AppRegistry;
+using Soma.Application.Handlers.Registry;
 using Soma.Data;
-using Soma.Data.AppChannel;
-using Soma.Data.AppRegistry;
-using Soma.Domain.AppChannel;
-using Soma.Domain.AppRegistry;
+using Soma.Data.Extensions;
+using Soma.Data.Project;
+using Soma.Domain.Project;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // DB
-builder.Services
-    .AddSingleton<DapperContext>()
-    .AddScoped<IAppRegistryRepository, AppRegistryRepository>()
-    .AddScoped<IAppChannelRepository, AppChannelRepository>();
+builder.Services.AddDataServices();
 
 builder.Services.AddMediatR(typeof(GetHandler));
 
